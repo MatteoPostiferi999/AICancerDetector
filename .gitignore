@@ -1,0 +1,22 @@
+# Ignore system files
+__pycache__/
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# Ignore virtual environments
+venv/
+.venv/
+
+# Ignore datasets and large files
+datasets/
+*.zip
+*.tar.gz
+*.csv
+
+# Ignore trained models
+*.h5
+*.pt
+*.pkl
+
+git
