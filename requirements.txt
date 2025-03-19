@@ -1,0 +1,17 @@
+torch
+torchvision
+torchaudio
+torchcam
+torchmetrics
+
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+tqdm
+opencv-python
+pillow
+
+notebook
+jupyter
