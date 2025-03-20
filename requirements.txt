@@ -1,17 +1,17 @@
-torch
-torchvision
+torch~=2.6.0
+torchvision~=0.21.0
 torchaudio
 torchcam
 torchmetrics
 
-numpy
+numpy~=1.26.4
 pandas
-matplotlib
+matplotlib~=3.10.1
 seaborn
 scikit-learn
 tqdm
 opencv-python
-pillow
+pillow~=11.1.0
 
 notebook
 jupyter
