@@ -1,46 +1,34 @@
 import torch
-import matplotlib.pyplot as plt
-import numpy as np
-from torchvision import transforms
-from PIL import Image
+from torch.utils.data import DataLoader
 from src.model import build_model
+from src.dataset_loader import get_data_loaders
 
-# Load the trained model
+# Load dataset
+_, val_loader = get_data_loaders(batch_size=32)  # Assuming get_dataloader() returns train & val loaders
+
+# Load model
 MODEL_PATH = "results/trained_model.pth"
-NUM_CLASSES = 3  # Adjust based on dataset
-
+NUM_CLASSES = 3
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = build_model(NUM_CLASSES).to(device)
 model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
 model.eval()
 
-# Define image transformation
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5], std=[0.5])
-])
-
-def predict(image_path):
-    """
-    Perform inference on a single image.
-
-    Args:
-        image_path (str): Path to the image file.
-
-    Returns:
-        Predicted class label.
-    """
-    image = Image.open(image_path).convert("RGB")
-    image = transform(image).unsqueeze(0).to(device)
-
+# Evaluation function
+def evaluate_model(model, dataloader):
+    correct, total = 0, 0
     with torch.no_grad():
-        output = model(image)
-        _, predicted = torch.max(output, 1)
+        for images, labels in dataloader:
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs, 1)
+            correct += (predicted == labels).sum().item()
+            total += labels.size(0)
 
-    return predicted.item()
+    accuracy = 100 * correct / total
+    print(f"Model Accuracy: {accuracy:.2f}%")
+    return accuracy
 
-# Example usage
-image_path = "datasets/sample_image.jpg"
-predicted_label = predict(image_path)
-print(f"Predicted Class: {predicted_label}")
+# Run evaluation
+if __name__ == "__main__":
+    evaluate_model(model, val_loader)
