@@ -1,16 +1,14 @@
 import torch
 from torchvision import transforms
 from PIL import Image
-from src.model import build_model
+from src.utils import load_trained_model
 
 # Load the trained model
 MODEL_PATH = "results/trained_model.pth"
 NUM_CLASSES = 3
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = load_trained_model("results/trained_model.pth", 3, device)
 
-model = build_model(NUM_CLASSES).to(device)
-model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
-model.eval()
 
 # Define image transformation
 transform = transforms.Compose([

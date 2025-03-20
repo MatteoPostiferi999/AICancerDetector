@@ -1,8 +1,9 @@
 import torch
 import torch.optim as optim
 import torch.nn as nn
-from src.dataset_loader import get_data_loaders
+from src.dataset_loader import get_dataloader
 from src.model import build_model
+from src.utils import count_parameters
 
 # Define parameters
 DATA_DIR = "datasets/TCIA"  # Change this to your dataset path
@@ -12,11 +13,13 @@ LEARNING_RATE = 0.001
 NUM_CLASSES = 3  # Adjust based on tumor types
 
 # Load data
-train_loader, val_loader = get_data_loaders(DATA_DIR, batch_size=BATCH_SIZE)
+train_loader, val_loader = get_dataloader(DATA_DIR, batch_size=BATCH_SIZE)
 
 # Initialize model, loss function, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = build_model(NUM_CLASSES).to(device)
+print(f"Model has {count_parameters(model)} trainable parameters.")
+
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
