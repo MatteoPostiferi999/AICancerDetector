@@ -7,7 +7,8 @@ AICancerDetector is a deep learning project that uses a **Convolutional Neural N
 - `src/` → Contains reusable Python scripts for dataset handling, model training, and evaluation.
 - `notebooks/` → Jupyter Notebooks for data analysis, visualization, and model testing.
 - `results/` → Stores trained models, evaluation metrics, and output visualizations.
-- `datasets/` → (Optional) Dataset files (if stored locally).
+- `datasets/` → The actual dataset is downloaded on Google Colab. This structure exists for development and path consistency.
+
 - `requirements.txt` → Lists all dependencies required to run the project.
 
 ## 🚀 Installation
