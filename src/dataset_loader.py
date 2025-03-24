@@ -1,33 +1,32 @@
 import os
 from torchvision import transforms
-from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
+from torch.utils.data import DataLoader
 
-# Definisci le trasformazioni da applicare alle immagini
+# Define transformations
 transform = transforms.Compose([
-    transforms.Resize((224, 224)),  # Resize standard per CNN
-    transforms.RandomHorizontalFlip(),  # Data augmentation
-    transforms.ToTensor(),  # Converte in tensor
-    transforms.Normalize(mean=[0.5] * 3, std=[0.5] * 3)  # Normalizzazione per 3 canali RGB
+    transforms.Resize((224, 224)),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.5]*3, std=[0.5]*3)
 ])
 
-
-# Funzione per caricare dataset + dataloader
-
+# Dataloader function using ImageFolder
 def get_dataloader(data_dir=None, batch_size=32, shuffle=True):
     if data_dir is None:
-        if "COLAB_GPU" in os.environ:
-            data_dir = "/content/dataset_prepared/train"
-        else:
-            data_dir = "datasets/dataset_prepared/train"
+        data_dir = (
+            "/content/dataset_prepared/train"
+            if "COLAB_GPU" in os.environ
+            else "datasets/dataset_prepared/train"
+        )
 
-    # ❗ Verifica che il path esista
     if not os.path.exists(data_dir):
-        raise FileNotFoundError(f"❌ Path non trovato: {data_dir}")
+        raise FileNotFoundError(f"❌ Path not found: {data_dir}")
 
-    # 📦 Crea dataset e dataloader
-    dataset = ImageFolder(root=data_dir, transform=transform)
+    dataset = ImageFolder(
+        root=data_dir,
+        transform=transform
+    )
+
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
-
     return dataset, dataloader
-
