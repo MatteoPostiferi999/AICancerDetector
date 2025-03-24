@@ -5,12 +5,14 @@ from tqdm import tqdm
 
 
 def prepare_dataset(
-        origin_root="datasets/breast-histopathology-images/IDC_regular_ps50_idx5",
-        dest_root="datasets/dataset_prepared",
-        train_pct=0.7,
-        val_pct=0.15,
-        test_pct=0.15
+    origin_root="/content/dataset/IDC_regular_ps50_idx5",
+    dest_root="/content/dataset_prepared",
+
+    train_pct=0.7,
+    val_pct=0.15,
+    test_pct=0.15
 ):
+
     """
     Prepara un dataset istologico dividendo le immagini in
     train/val/test e classificandole in IDC e non-IDC in base al nome file.
@@ -22,7 +24,7 @@ def prepare_dataset(
         val_pct (float): percentuale per validation set
         test_pct (float): percentuale per test set
     """
-
+    print("Provaaaaa1")
     # 🧹 Elimina cartella esistente
     if os.path.exists(dest_root):
         shutil.rmtree(dest_root)
@@ -34,9 +36,13 @@ def prepare_dataset(
 
     # 🖼️ Leggi tutte le immagini e classifica in base al nome
     all_images = []
-
+    print("Provaaa2")
     for subdir in os.listdir(origin_root):
+        print("Provaaa3")
+
         sub_path = os.path.join(origin_root, subdir)
+        print("Provaaa4")
+
         if os.path.isdir(sub_path):
             for img_name in os.listdir(sub_path):
                 full_path = os.path.join(sub_path, img_name)
