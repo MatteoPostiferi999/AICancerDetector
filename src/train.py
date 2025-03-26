@@ -1,45 +1,69 @@
+# src/train.py
+
+import os
+import json
 import torch
-import torch.optim as optim
-import torch.nn as nn
-from src.dataset_loader import get_dataloader
-from src.model import build_model
-from src.utils import count_parameters
+import matplotlib.pyplot as plt
+from tqdm import tqdm
+from src.metrics import compute_metrics
 
-# Define parameters
-DATA_DIR = "datasets/TCIA"  # Change this to your dataset path
-BATCH_SIZE = 32
-EPOCHS = 10
-LEARNING_RATE = 0.001
-NUM_CLASSES = 3  # Adjust based on tumor types
+def train_model(model, dataloader, criterion, optimizer, device, epochs=10, save_path="results/", use_wandb=False):
+    os.makedirs(save_path, exist_ok=True)
+    history = {k: [] for k in ["loss", "accuracy", "precision", "recall", "f1"]}
+    best_f1 = 0.0
 
-# Load data
-train_loader, val_loader = get_dataloader(DATA_DIR, batch_size=BATCH_SIZE)
+    for epoch in range(epochs):
+        model.train()
+        running_loss = 0.0
+        y_true, y_pred = [], []
+        loop = tqdm(dataloader, desc=f"Epoch {epoch+1}/{epochs}", leave=False)
 
-# Initialize model, loss function, and optimizer
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = build_model(NUM_CLASSES).to(device)
-print(f"Model has {count_parameters(model)} trainable parameters.")
+        for images, labels in loop:
+            images, labels = images.to(device), labels.to(device)
+            optimizer.zero_grad()
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
 
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+            running_loss += loss.item()
+            _, preds = torch.max(outputs, 1)
+            y_true.extend(labels.cpu().numpy())
+            y_pred.extend(preds.cpu().numpy())
+            loop.set_postfix(loss=loss.item())
 
-# Training loop
-for epoch in range(EPOCHS):
-    model.train()
-    running_loss = 0.0
+        avg_loss = running_loss / len(dataloader)
+        metrics = compute_metrics(y_true, y_pred)
+        history["loss"].append(avg_loss)
+        for k in metrics:
+            history[k].append(metrics[k])
 
-    for images, labels in train_loader:
-        images, labels = images.to(device), labels.to(device)
+        print(f"📈 Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.4f} | Acc: {metrics['accuracy']:.4f} | F1: {metrics['f1']:.4f}")
 
-        optimizer.zero_grad()
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
+        # 💾 Save best model
+        if metrics["f1"] > best_f1:
+            best_f1 = metrics["f1"]
+            torch.save(model.state_dict(), os.path.join(save_path, "best_model.pth"))
 
-        running_loss += loss.item()
+        if use_wandb:
+            import wandb
+            wandb.log({"epoch": epoch + 1, "loss": avg_loss, **metrics})
 
-    print(f"Epoch [{epoch+1}/{EPOCHS}], Loss: {running_loss/len(train_loader):.4f}")
+    # 💾 Save final model
+    torch.save(model.state_dict(), os.path.join(save_path, "histology_model.pth"))
+    with open(os.path.join(save_path, "train_history.json"), "w") as f:
+        json.dump(history, f, indent=4)
 
-print("✅ Training complete!")
-torch.save(model.state_dict(), "results/trained_model.pth")
+    # 📈 Plot
+    plt.figure(figsize=(10, 6))
+    for k in ["accuracy", "precision", "recall", "f1"]:
+        plt.plot(history[k], label=k)
+    plt.xlabel("Epoch")
+    plt.ylabel("Score")
+    plt.title("📈 Metriche durante il training")
+    plt.legend()
+    plt.grid()
+    plt.savefig(os.path.join(save_path, "training_metrics_curve.png"))
+    plt.close()
+
+    return history
