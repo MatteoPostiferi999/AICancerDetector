@@ -7,7 +7,7 @@ from src.metrics import compute_metrics, plot_confusion_matrix, plot_roc_curve
 
 # 📦 Configurazione
 MODEL_PATH = "results/trained_model.pth"
-NUM_CLASSES = 3
+NUM_CLASSES = 2
 RESULTS_DIR = "results"
 os.makedirs(RESULTS_DIR, exist_ok=True)
 

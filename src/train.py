@@ -5,10 +5,17 @@ import json
 import torch
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from datetime import datetime
 from src.metrics import compute_metrics
 
-def train_model(model, dataloader, criterion, optimizer, device, epochs=10, save_path="results/", use_wandb=False):
-    os.makedirs(save_path, exist_ok=True)
+
+def train_model(model, dataloader, criterion, optimizer, device, epochs=10, use_wandb=False):
+    # 🕒 Crea una cartella unica per ogni run
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    RUN_DIR = os.path.join("results", f"run_{timestamp}")
+    os.makedirs(RUN_DIR, exist_ok=True)
+    print(f"📁 Risultati salvati in: {RUN_DIR}")
+
     history = {k: [] for k in ["loss", "accuracy", "precision", "recall", "f1"]}
     best_f1 = 0.0
 
@@ -43,18 +50,23 @@ def train_model(model, dataloader, criterion, optimizer, device, epochs=10, save
         # 💾 Save best model
         if metrics["f1"] > best_f1:
             best_f1 = metrics["f1"]
-            torch.save(model.state_dict(), os.path.join(save_path, "best_model.pth"))
+            torch.save(model.state_dict(), os.path.join(RUN_DIR, "best_model.pth"))
 
         if use_wandb:
             import wandb
             wandb.log({"epoch": epoch + 1, "loss": avg_loss, **metrics})
 
-    # 💾 Save final model
-    torch.save(model.state_dict(), os.path.join(save_path, "histology_model.pth"))
-    with open(os.path.join(save_path, "train_history.json"), "w") as f:
+    # 💾 Save final model & metrics
+    torch.save(model.state_dict(), os.path.join(RUN_DIR, "histology_model.pth"))
+
+    with open(os.path.join(RUN_DIR, "train_history.json"), "w") as f:
         json.dump(history, f, indent=4)
 
-    # 📈 Plot
+    # 📝 Salva info run
+    with open(os.path.join(RUN_DIR, "run_info.txt"), "w") as f:
+        f.write(f"Epoche: {epochs}\nBest F1: {best_f1:.4f}\nTimestamp: {timestamp}\n")
+
+    # 📈 Plot metrics
     plt.figure(figsize=(10, 6))
     for k in ["accuracy", "precision", "recall", "f1"]:
         plt.plot(history[k], label=k)
@@ -63,7 +75,7 @@ def train_model(model, dataloader, criterion, optimizer, device, epochs=10, save
     plt.title("📈 Metriche durante il training")
     plt.legend()
     plt.grid()
-    plt.savefig(os.path.join(save_path, "training_metrics_curve.png"))
+    plt.savefig(os.path.join(RUN_DIR, "training_metrics_curve.png"))
     plt.close()
 
-    return history
+    return history, RUN_DIR  # puoi usare RUN_DIR anche nel notebook per caricare risultati
