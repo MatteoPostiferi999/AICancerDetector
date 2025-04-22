@@ -15,7 +15,7 @@ def compute_metrics(y_true, y_pred):
     }
 
 
-def plot_confusion_matrix(y_true, y_pred, labels=["non-IDC", "IDC"], save_path=None):
+def plot_confusion_matrix(y_true, y_pred, labels=["NON-Invasive Ductual Carcinoma", "Invasive Ductual Carcinoma"], save_path=None):
     cm = confusion_matrix(y_true, y_pred)
     plt.figure(figsize=(5, 4))
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=labels, yticklabels=labels)

@@ -7,7 +7,7 @@ from datetime import datetime
 from src.metrics import compute_metrics
 
 
-def train_model(model, dataloader, criterion, optimizer, device, epochs=10):
+def train_model(model, dataloader, criterion, optimizer, device, epochs=10, use_wandb=False):
     history = {k: [] for k in ["loss", "accuracy", "precision", "recall", "f1"]}
     best_f1 = 0.0
 

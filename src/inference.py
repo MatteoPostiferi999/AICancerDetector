@@ -5,9 +5,9 @@ from src.utils import load_trained_model
 
 # Load the trained model
 MODEL_PATH = "results/trained_model.pth"
-NUM_CLASSES = 3
+NUM_CLASSES = 2
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = load_trained_model("results/trained_model.pth", 3, device)
+model = load_trained_model("results/trained_model.pth", 2, device)
 
 
 # Define image transformation
