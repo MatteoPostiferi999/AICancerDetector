@@ -29,5 +29,5 @@ def get_dataloader(data_dir=None, batch_size=32, shuffle=True):
     )
 
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle,
-                            num_workers=2, pin_memory=True)
+                            num_workers=4, pin_memory=True)
     return dataset, dataloader
