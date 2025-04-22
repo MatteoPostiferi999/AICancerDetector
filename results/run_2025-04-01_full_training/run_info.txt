@@ -1,0 +1,6 @@
+Epoche: 10
+Learning rate: 0.0001
+Batch size: 32
+Timestamp: 2025-04-01_14-25
+Model: ResNet18 (ALL layers trainable)
+Note: Primo training completo (non era fine-tuning)

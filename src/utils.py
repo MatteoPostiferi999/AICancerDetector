@@ -32,9 +32,3 @@ def load_trained_model(model_path, num_classes, device):
     return model
 
 
-def apply_gradcam(activation_map, image):
-    """Applies a Grad-CAM heatmap on an image."""
-    heatmap = cv2.applyColorMap(np.uint8(255 * activation_map), cv2.COLORMAP_JET)
-    heatmap = cv2.cvtColor(heatmap, cv2.COLOR_BGR2RGB)
-    overlay = cv2.addWeighted(image, 0.5, heatmap, 0.5, 0)
-    return overlay
