@@ -4,6 +4,7 @@ import json
 from src.dataset_loader import get_dataloader
 from src.utils import load_trained_model
 from src.metrics import compute_metrics, plot_confusion_matrix, plot_roc_curve
+from tqdm import tqdm
 
 # 📦 Configurazione
 MODEL_PATH = "results/trained_model.pth"
@@ -20,7 +21,8 @@ def evaluate_model(model, dataloader, save_dir=RESULTS_DIR):
     y_true, y_pred, y_scores = [], [], []
 
     with torch.no_grad():
-        for images, labels in dataloader:
+        loop = tqdm(dataloader, desc="🔍 Evaluation", leave=False)
+        for images, labels in loop:
             images, labels = images.to(device), labels.to(device)
             outputs = model(images)
             probs = torch.softmax(outputs, dim=1)  # Per multiclass
