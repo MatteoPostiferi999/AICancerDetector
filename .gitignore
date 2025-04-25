@@ -14,9 +14,11 @@ datasets/
 *.tar.gz
 *.csv
 
-# Ignore trained models
+# Ignore trained models and checkpoints
 *.h5
 *.pt
 *.pkl
+*.pth
 
-git
+# Ignore Kaggle credentials
+kaggle.json
