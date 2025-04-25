@@ -22,3 +22,5 @@ datasets/
 
 # Ignore Kaggle credentials
 kaggle.json
+
+**/.DS_Store
