@@ -69,6 +69,8 @@ def train_model(model, dataloader, criterion, optimizer, device, epochs=10, resu
     best_f1 = 0.0
     best_state_dict = model.state_dict()
     history = {k: [] for k in ["loss", "accuracy", "precision", "recall", "f1"]}
+    patience = 5
+    epochs_no_improve = 0
 
     if resume:
         # 🔥 Carica da Google Drive, non da run_dir
@@ -109,6 +111,13 @@ def train_model(model, dataloader, criterion, optimizer, device, epochs=10, resu
         if metrics["f1"] > best_f1:
             best_f1 = metrics["f1"]
             best_state_dict = model.state_dict()
+            epochs_no_improve = 0
+        else:
+            epochs_no_improve += 1
+            if epochs_no_improve >= patience:
+                print(f"⛔ Early stopping attivato dopo {patience} epoche senza miglioramenti.")
+                break
+
 
         # 🔥 salva su Drive ogni 5 epoche
         if (epoch + 1) % 5 == 0:
@@ -124,17 +133,6 @@ def train_model(model, dataloader, criterion, optimizer, device, epochs=10, resu
     with open(os.path.join(run_dir, "run_info.txt"), "w") as f:
         f.write(f"Epoche: {epochs}\nBest F1: {best_f1:.4f}\nResume: {resume}\n")
 
-    # 📈 Grafico
-    plt.figure(figsize=(10, 6))
-    for k in ["accuracy", "precision", "recall", "f1"]:
-        plt.plot(history[k], label=k)
-    plt.xlabel("Epoch")
-    plt.ylabel("Score")
-    plt.title("📈 Metriche durante il training")
-    plt.legend()
-    plt.grid()
-    plt.savefig(os.path.join(run_dir, "training_metrics_curve.png"))
-    plt.close()
 
     print(f"✅ Training completato. Risultati salvati in {run_dir}")
     return history, run_dir
